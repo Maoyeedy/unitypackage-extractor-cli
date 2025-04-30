@@ -1,0 +1,42 @@
+{
+  "name": "unitypackage-extractor",
+  "version": "1.0.0",
+  "description": "Extract .unitypackage files from the command line",
+  "main": "dist/index.js",
+  "bin": {
+    "unitypackage-extractor": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "unity",
+    "unitypackage",
+    "extract",
+    "cli"
+  ],
+  "author": "Maoyeedy",
+  "license": "MIT",
+  "dependencies": {
+    "tar": "^6.2.0",
+    "tmp-promise": "^3.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.5",
+    "@types/tar": "^6.1.11",
+    "@types/tmp": "^0.2.6",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Maoyeedy/unitypackage-extractor.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Maoyeedy/unitypackage-extractor/issues"
+  },
+  "homepage": "https://github.com/Maoyeedy/unitypackage-extractor#readme"
+}
