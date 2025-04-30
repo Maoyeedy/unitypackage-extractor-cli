@@ -46,6 +46,6 @@ ts-node src/cli.ts *.unitypackage
 
 ## Credits
 
-Inspired by [Cobertos/unitypackage_extractor](https://github.com/Cobertos/unitypackage_extractor) which relys on Python runtime and installed via pip.
+Inspired by [Cobertos/unitypackage_extractor](https://github.com/Cobertos/unitypackage_extractor) which relys on Python and installed via pip.
 
 I built this TypeScript version for lightweight and simplified CLI usage.
