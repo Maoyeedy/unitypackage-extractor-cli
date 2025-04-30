@@ -7,9 +7,6 @@ A command-line tool to extract .unitypackage files.
 ```bash
 # Install globally to use as a command-line tool
 npm install -g unitypackage-extractor
-
-# Or install locally in your project
-npm install unitypackage-extractor
 ```
 
 ## Usage
@@ -17,38 +14,38 @@ npm install unitypackage-extractor
 ### Command Line
 
 ```bash
-unitypackage-extractor path/to/package.unitypackage [optional/output/path]
+unitypackage-extractor *.unitypackage [optional/output/path]
 ```
 
 If no output path is specified, the package contents will be extracted to the current directory.
 
-### Programmatic Usage
-
-```typescript
-import { extractPackage } from 'unitypackage-extractor';
-
-async function example() {
-  try {
-    // Extract to the current directory
-    await extractPackage('/path/to/your/package.unitypackage');
-    
-    // Or specify an output path
-    await extractPackage('/path/to/your/package.unitypackage', '/desired/output/path');
-  } catch (error) {
-    console.error(`Error: ${error.message}`);
-  }
-}
-
-example();
-```
-
 ## Features
 
-- Extracts .unitypackage files (Unity asset packages)
+- Extracts .unitypackage files
 - Preserves the original directory structure
 - Handles path security (prevents directory traversal)
-- Works on Windows, macOS, and Linux
+- Works cross platform
 
-## License
+## Development
 
-MIT
+### Build
+```bash
+npm run build
+```
+
+### Run
+```bash
+# Using compiled js
+node dist/cli.js *.unitypackage
+```
+
+```bash
+# Or using ts-node CLI
+ts-node src/cli.ts *.unitypackage
+```
+
+## Credits
+
+Inspired by [Cobertos/unitypackage_extractor](https://github.com/Cobertos/unitypackage_extractor) which relys on Python runtime and installed via pip.
+
+I built this TypeScript version for lightweight and simplified CLI usage.
