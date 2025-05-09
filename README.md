@@ -1,6 +1,8 @@
 # UnityPackage Extractor
 
-A command-line tool to extract .unitypackage files.
+[![NPM Version](https://img.shields.io/npm/v/unitypackage-extractor.svg)](https://www.npmjs.com/package/unitypackage-extractor)
+
+A command-line tool to extract and view .unitypackage files.
 
 ## Installation
 
