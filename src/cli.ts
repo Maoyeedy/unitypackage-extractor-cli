@@ -6,14 +6,13 @@ import path from 'path';
 function showHelp(): void {
   console.log(`
 Usage:
-  unitypackage-extractor <command> <package.unitypackage> [output/path]
+  unitypackage-extractor <command> <*.unitypackage>
 
 Commands:
-  extract <package.unitypackage> [output/path]   Extracts the package to the specified path (or current directory)
-  view <package.unitypackage>                    Lists asset paths in the package without extracting
+  extract <*.unitypackage> [output/path]   Extracts the package to the specified path (or current directory)
+  view <*.unitypackage>                    Lists asset paths in the package without extracting
 
-If no command is specified, 'extract' is used by default.
-`);
+If no command, 'extract' is used by default.`);
 }
 
 async function main() {
