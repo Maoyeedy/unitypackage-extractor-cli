@@ -68,12 +68,17 @@ export async function viewPackage(packagePath: string, encoding: BufferEncoding 
   try {
     await tar.extract({ file: packagePath, cwd: tmpDirObj.path });
     const entries = fs.readdirSync(tmpDirObj.path);
+    const pathnames: string[] = [];
     for (const entry of entries) {
       const assetEntryDir = path.join(tmpDirObj.path, entry);
       const pathnamePath = path.join(assetEntryDir, 'pathname');
       if (!fs.existsSync(pathnamePath)) continue;
       let pathname = fs.readFileSync(pathnamePath, encoding).toString();
       pathname = sanitizePathname(pathname, encoding);
+      pathnames.push(pathname);
+    }
+    pathnames.sort();
+    for (const pathname of pathnames) {
       console.log(pathname);
     }
   } finally {
