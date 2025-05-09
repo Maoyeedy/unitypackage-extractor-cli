@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { extractPackage } from './index';
+import { extractPackage, viewPackage } from './index';
 import path from 'path';
 
 function showHelp(): void {
@@ -20,22 +20,32 @@ async function main() {
     return;
   }
 
-  // Filter out any arguments that start with - or --
-  const fileArgs = args.filter(arg => !arg.startsWith('-'));
+  // Determine command: extract or view (default extract)
+  let command = 'extract';
+  let argIndex = 0;
+  if (['extract', 'view'].includes(args[0])) {
+    command = args[0];
+    argIndex = 1;
+  }
 
-  // If there are no file arguments, show help
-  if (fileArgs.length === 0) {
-    console.log('Error: No package file specified');
+  // Filter out any options (starting with -)
+  const positionalArgs = args.slice(argIndex).filter(arg => !arg.startsWith('-'));
+
+  if (positionalArgs.length === 0) {
+    console.error('Error: No package file specified');
     showHelp();
     return;
   }
 
-  const packagePath = fileArgs[0];
-  const outputPath = fileArgs.length > 1 ? fileArgs[1] : undefined;
+  const packagePath = positionalArgs[0];
+  const outputPath = positionalArgs.length > 1 ? positionalArgs[1] : undefined;
 
-  console.log(`Extracting ${path.basename(packagePath)}...`);
-  await extractPackage(packagePath, outputPath);
-  console.log('Extraction complete!');
+  if (command === 'view') {
+    await viewPackage(packagePath);
+  } else {
+    await extractPackage(packagePath, outputPath);
+    console.log('Extraction complete!');
+  }
 }
 
 main().catch(error => {

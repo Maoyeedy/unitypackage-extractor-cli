@@ -28,57 +28,57 @@ export async function extractPackage(packagePath: string, outputPath?: string, e
   if (!outputPath) {
     outputPath = process.cwd();
   }
-  
+
   // Create a temporary directory
   const tmpDirObj = await tmpDir({ unsafeCleanup: true });
-  
+
   try {
     // Extract the unitypackage to the temporary directory
     await tar.extract({
       file: packagePath,
       cwd: tmpDirObj.path
     });
-    
+
     // Process each entry in the temporary directory
     const entries = fs.readdirSync(tmpDirObj.path);
-    
+
     for (const entry of entries) {
       const assetEntryDir = path.join(tmpDirObj.path, entry);
       const pathnamePath = path.join(assetEntryDir, 'pathname');
       const assetPath = path.join(assetEntryDir, 'asset');
-      
+
       // Check if the required files exist
       if (!fs.existsSync(pathnamePath) || !fs.existsSync(assetPath)) {
         continue; // Skip this entry if it doesn't have the required files
       }
-      
+
       try {
         // Read the pathname file to get the asset's path
         let pathname = fs.readFileSync(pathnamePath, encoding).toString();
         // Remove trailing newline if present
         pathname = pathname.endsWith('\n') ? pathname.slice(0, -1) : pathname;
-        
+
         // Replace Windows reserved characters with underscores (except for path separators)
         if (process.platform === 'win32') {
           pathname = pathname.replace(/[>:"|\?\*]/g, '_');
         }
-        
+
         // Calculate the output path for this asset
         const assetOutPath = path.join(outputPath, pathname);
-        
+
         // Security check: make sure the output path is inside the desired output directory
         const resolvedOutputPath = path.resolve(outputPath);
         const resolvedAssetPath = path.resolve(assetOutPath);
-        
+
         if (!resolvedAssetPath.startsWith(resolvedOutputPath)) {
           console.warn(`WARNING: Skipping '${entry}' as '${assetOutPath}' is outside of '${outputPath}'.`);
           continue;
         }
-        
+
         // Create the directory structure for the asset
         console.log(`Extracting '${entry}' as '${pathname}'`);
         await fs.promises.mkdir(path.dirname(assetOutPath), { recursive: true });
-        
+
         // Move the asset to its final location
         await moveFile(assetPath, assetOutPath);
       } catch (error) {
@@ -87,6 +87,42 @@ export async function extractPackage(packagePath: string, outputPath?: string, e
     }
   } finally {
     // Clean up the temporary directory
+    await tmpDirObj.cleanup();
+  }
+}
+
+/**
+ * Lists asset paths in a .unitypackage without extracting
+ * @param packagePath The path to the .unitypackage
+ * @param encoding File encoding to use
+ */
+export async function viewPackage(packagePath: string, encoding: BufferEncoding = 'utf-8'): Promise<void> {
+  const tmpDirObj = await tmpDir({ unsafeCleanup: true });
+  try {
+    // Extract package contents to temp directory
+    await tar.extract({ file: packagePath, cwd: tmpDirObj.path });
+
+    // Read each entry folder and list the interpreted paths
+    const entries = fs.readdirSync(tmpDirObj.path);
+    for (const entry of entries) {
+      const assetEntryDir = path.join(tmpDirObj.path, entry);
+      const pathnamePath = path.join(assetEntryDir, 'pathname');
+      if (!fs.existsSync(pathnamePath)) continue;
+
+      // Read and trim the pathname
+      let pathname = fs.readFileSync(pathnamePath, encoding).toString();
+      pathname = pathname.endsWith('\n') ? pathname.slice(0, -1) : pathname;
+
+      // Print the asset path
+      console.log(pathname);
+
+      // const metaPath = path.join(assetEntryDir, 'asset.meta');
+      // if (fs.existsSync(metaPath)) {
+      //   console.log(pathname + '.meta');
+      // }
+    }
+  } finally {
+    // Clean up temp directory
     await tmpDirObj.cleanup();
   }
 }
