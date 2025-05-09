@@ -11,13 +11,19 @@ npm install -g unitypackage-extractor
 
 ## Usage
 
-### Command Line
+### Extract
 
 ```bash
 unitypackage-extractor *.unitypackage [optional/output/path]
 ```
+> If output path unspecified, packages will be extracted to current directory `./Assets`
 
-If no output path is specified, the package contents will be extracted to the current directory.
+### View
+
+```bash
+unitypackage-extractor view *.unitypackage
+```
+> List the contents of the package without extracting it.
 
 ## Features
 
