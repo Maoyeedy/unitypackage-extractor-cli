@@ -45,7 +45,8 @@ async function main() {
       await viewPackage(packagePath);
     } else {
       await extractPackage(packagePath, outputPath);
-      console.log('Extraction complete!');
+      const resolvedOutputPath = path.resolve(outputPath || process.cwd());
+      console.log('Extracted successfully to', resolvedOutputPath);
     }
   } catch (error) {
     console.error(`Unhandled error: ${error instanceof Error ? error.message : String(error)}`);
