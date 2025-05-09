@@ -2,22 +2,26 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as tar from 'tar';
 import { dir as tmpDir } from 'tmp-promise';
+import sanitize from 'sanitize-filename';
 
 async function moveFile(source: string, destination: string): Promise<void> {
   try {
-    fs.renameSync(source, destination);
-  } catch {
-    fs.copyFileSync(source, destination);
-    fs.unlinkSync(source);
+    await fs.promises.rename(source, destination);
+  } catch (error: any) {
+    if (error.code === 'EXDEV') {
+      await fs.promises.copyFile(source, destination);
+      await fs.promises.unlink(source);
+    } else {
+      throw error;
+    }
   }
 }
 
-function sanitizePathname(pathname: string, encoding: BufferEncoding): string {
-  let result = pathname.endsWith('\n') ? pathname.slice(0, -1) : pathname;
-  if (process.platform === 'win32') {
-    result = result.replace(/[>:"|\?\*]/g, '_');
-  }
-  return result;
+function sanitizePathname(pathname: string): string {
+  const trimmed = pathname.trimEnd();
+  const segments = trimmed.split(/[\\/]+/);
+  const safe = segments.map(seg => sanitize(seg) || '_');
+  return safe.join(path.sep);
 }
 
 function isValidAssetEntry(assetEntryDir: string): boolean {
@@ -29,13 +33,13 @@ function resolveAssetOutPath(outputPath: string, pathname: string): string {
 }
 
 function isPathInside(parent: string, child: string): boolean {
-  const resolvedParent = path.resolve(parent);
+  const resolvedParent = path.resolve(parent) + path.sep;
   const resolvedChild = path.resolve(child);
   return resolvedChild.startsWith(resolvedParent);
 }
 
 export async function extractPackage(packagePath: string, outputPath?: string, encoding: BufferEncoding = 'utf-8'): Promise<void> {
-  outputPath = outputPath || process.cwd();
+  outputPath = path.resolve(outputPath || process.cwd());
   const tmpDirObj = await tmpDir({ unsafeCleanup: true });
   try {
     await tar.extract({ file: packagePath, cwd: tmpDirObj.path });
@@ -44,8 +48,9 @@ export async function extractPackage(packagePath: string, outputPath?: string, e
       const assetEntryDir = path.join(tmpDirObj.path, entry);
       if (!isValidAssetEntry(assetEntryDir)) continue;
       try {
-        let pathname = fs.readFileSync(path.join(assetEntryDir, 'pathname'), encoding).toString();
-        pathname = sanitizePathname(pathname, encoding);
+        const raw = await fs.promises.readFile(path.join(assetEntryDir, 'pathname'), encoding);
+        let pathname = raw.toString();
+        pathname = sanitizePathname(pathname);
         const assetOutPath = resolveAssetOutPath(outputPath, pathname);
         if (!isPathInside(outputPath, assetOutPath)) {
           console.warn(`WARNING: Skipping '${entry}' as '${assetOutPath}' is outside of '${outputPath}'.`);
@@ -73,8 +78,9 @@ export async function viewPackage(packagePath: string, encoding: BufferEncoding 
       const assetEntryDir = path.join(tmpDirObj.path, entry);
       const pathnamePath = path.join(assetEntryDir, 'pathname');
       if (!fs.existsSync(pathnamePath)) continue;
-      let pathname = fs.readFileSync(pathnamePath, encoding).toString();
-      pathname = sanitizePathname(pathname, encoding);
+      const raw = await fs.promises.readFile(pathnamePath, encoding);
+      let pathname = raw.toString();
+      pathname = sanitizePathname(pathname);
       pathnames.push(pathname);
     }
     pathnames.sort();
