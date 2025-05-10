@@ -1,10 +1,10 @@
 # UnityPackage Extractor
 
+[![Unity Package Extractor](https://img.shields.io/npm/v/unitypackage-extractor)](https://www.npmjs.com/package/unitypackage-extractor)
+
 A command-line tool to extract .unitypackage files.
 
 ## Installation
-
-[![Unity Package Extractor](https://img.shields.io/npm/v/unitypackage-extractor)](https://www.npmjs.com/package/unitypackage-extractor)
 
 ```bash
 # Install globally to use as a command-line tool
